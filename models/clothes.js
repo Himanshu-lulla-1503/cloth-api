@@ -44,7 +44,7 @@ const clotheschema = new  mongoose.Schema({
     },
 },{
     timestamps:true
-});
+},{bufferCommands:false});
 
 
 const clothmodel= mongoose.model('clothmodelapp',clotheschema);
