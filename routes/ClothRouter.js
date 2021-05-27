@@ -5,6 +5,8 @@ Router.use(express.json());
 Router.use(express.urlencoded({extended:false}));
 const cloth = require('../models/clothes');
 const authenticate=require('../authentication/authenticate');
+const authenticateadmin = require('../authentication/authenticateadmin');
+//multer package use for image upload
 const multer=require('multer');
 const storage= multer.diskStorage({
     destination:(req,file,cb)=>{
@@ -16,6 +18,8 @@ const storage= multer.diskStorage({
 });
 
 const upload=multer({storage:storage});
+
+
 //Route to /clothes
 Router.route('/')
 .get((req,res,next)=>{
@@ -53,28 +57,29 @@ Router.route('/')
 })
 .put(authenticate,(req,res,next)=>{
     res.statusCode=403;
-    res.json({"Error":"Put Operation not supported on entire colthes try selecting cloth by id to update"});
+    res.json({"Error":"Put Operation not supported on entire clothes try selecting cloth by id to update"});
 
 })
-.delete(authenticate,(req,res,next)=>{
+.delete(authenticateadmin,(req,res,next)=>{
     cloth.deleteMany().then((result)=>{
         console.log(result);
         console.log(`deleted count of documents from collection is ${result.deletedCount}`);
-        res.setHeader('Content-Type','application/json');
-        res.json({"Deleted Count of documents":result.deletedCount,"Deleted Documents":result});
+        res.json({"Deleted Count of documents":result.deletedCount});
     }).catch((err)=>{
         console.log(err);
         next(err);
     });
 
 });
+
+
 //Route to Indiviual IDs as params
 Router.route('/:clothId')
 .get((req,res,next)=>{
     cloth.findOne({Cloth_id:req.params.clothId},{_id:false,__v:false}).then((result)=>{
         if(!result){
             res.statusCode=200;
-            res.json({"error":`no clothes exist with ${req.params.clothId} id}`});
+            res.json({"error":`no clothes exist with ${req.params.clothId} id`});
         }
         else{
             res.json({"Found Product":result});
@@ -93,8 +98,14 @@ Router.route('/:clothId')
     cloth.findOneAndUpdate({Cloth_id:req.params.clothId},{
         $set:req.body
     },{new:true}).then((result)=>{
-        console.log(result);
-        res.json({"Updated Product":result});
+        if(!result){
+            res.statusCode=200;
+            res.json({"error":`no clothes exist with ${req.params.clothId} id`});
+        }
+        else{
+            res.json({"Updated Product":result});
+        }
+        
     }).catch((err)=>{
         console.log(err);
         next(err);
@@ -112,4 +123,28 @@ Router.route('/:clothId')
 
     
 })
+
+
+
+//Route to Cloth of particular category taken as params
+Router.route('/category/:category')
+.get((req,res,next)=>{
+    cloth.find({Category:req.params.category},{_id:false,__v:false}).then((result)=>{
+        if(result.length<1){
+            res.statusCode=200;
+            res.json({"error":`no clothes exist of ${req.params.category} category`});
+        }
+        else{
+            res.json({"Found Products of given category":result});
+        }
+       
+    }).catch((err)=>{
+        console.log(err);
+        next(err);
+    })
+})
+
+
+
+
 module.exports=Router;

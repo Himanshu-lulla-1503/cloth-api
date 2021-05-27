@@ -7,12 +7,14 @@ const authenticateadmin=require('../authentication/authenticateadmin');
 Router.use(express.json());
 Router.use(express.urlencoded({extended:false}));
 const User = require('../models/User');
+
+
+//signup route of user 
 Router.route('/signup')
 .post(async(req,res,next)=>{
     try{
         let {email,password,admin}=req.body;
         password=await bcrypt.hash(password,10);
-        console.log(password);
         const userdata=await User.create({
             email:email,
             password:password,
@@ -27,7 +29,7 @@ Router.route('/signup')
 });
 
 
-
+//login route of users
 Router.route('/login')
 .post((req,res,next)=>{
         User.findOne({email:req.body.email}).then((result)=>{
