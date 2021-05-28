@@ -1,6 +1,8 @@
 const express= require('express');
 const app = express();
 const portno =process.env.PORT || 1503;
+const path=require('path');
+require('dotenv').config({ path: path.resolve('.env')});
 const connection = require('./models/conn');
 const Userroute=require('./routes/UserRouter');
 const Clothesroute=require('./routes/ClothRouter');
