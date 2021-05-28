@@ -1,7 +1,7 @@
 {
   "name": "intern",
   "version": "1.0.0",
-  "description": "",
+  "description": "Clothes Api",
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
